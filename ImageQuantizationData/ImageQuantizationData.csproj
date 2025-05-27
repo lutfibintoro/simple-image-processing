@@ -1,0 +1,28 @@
+﻿
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<PlatformTarget>x64</PlatformTarget>
+		<ApplicationIcon>dino.ico</ApplicationIcon>
+    </PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="dino.ico" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
+		<PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.3.25173.2" />
+		<PackageReference Include="ScottPlot" Version="5.0.55" />
+		<PackageReference Include="ScottPlot.WinForms" Version="5.0.55" />
+		<PackageReference Include="ClosedXML" Version="0.105.0-rc" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+
+</Project>
