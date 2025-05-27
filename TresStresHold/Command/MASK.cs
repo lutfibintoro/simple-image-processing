@@ -6,6 +6,8 @@ namespace TresStresHold.Command
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using Newtonsoft.Json;
+
     internal class MASK : ICommand
     {
         private ColorInformation? _colorInformation;
@@ -20,7 +22,15 @@ namespace TresStresHold.Command
 
         public void Go()
         {
+            if (_colorInformation is null || _colorInformation.DefaultColor is null || _colorInformation.GrayScaleColor is null)
+                return;
 
+            int threshold = int.Parse(_value![1..]);
+            char barrier = _value![0];
+
+
+            int height = _colorInformation.GrayScaleColor.Length;
+            int width = _colorInformation.GrayScaleColor[0].Length;
         }
 
         public bool IsFalseCommandCheck()
@@ -136,6 +146,8 @@ namespace TresStresHold.Command
 
         public ICommand? SetColorInformation()
         {
+            string json = File.ReadAllText(_path!);
+            _colorInformation = JsonConvert.DeserializeObject<ColorInformation>(json);
             return this;
         }
     }

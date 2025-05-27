@@ -67,7 +67,7 @@ namespace TresStresHold
             else if (spell.ToUpper().Equals("TRSHOLD"))
                 command = new TRSHOLD(fullCommand);
             else if (spell.ToUpper().Equals("MASK"))
-                return;//command = new MASK(fullCommand);
+                command = new MASK(fullCommand);
             else
                 return;
 
