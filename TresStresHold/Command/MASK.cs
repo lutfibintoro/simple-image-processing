@@ -3,8 +3,11 @@ namespace TresStresHold.Command
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
+    using System.Drawing.Imaging;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
 
@@ -25,13 +28,118 @@ namespace TresStresHold.Command
             if (_colorInformation is null || _colorInformation.DefaultColor is null || _colorInformation.GrayScaleColor is null)
                 return;
 
-            int threshold = int.Parse(_value![1..]);
+            int threshold = int.Parse(_value![1..^1]);
             char barrier = _value![0];
-
+            char edgeType = _value![^1];
 
             int height = _colorInformation.GrayScaleColor.Length;
             int width = _colorInformation.GrayScaleColor[0].Length;
+
+            using Bitmap bmpMASK = new(width, height);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    bmpMASK.SetPixel(x, y, Color.FromArgb(0, 0, 0));
+                }
+            }
+
+            for (int y = 1; y < (height - 1); y++)
+            {
+                for (int x = 1; x < (width - 1); x++)
+                {
+                    int[,] yx = new int[3, 3];
+                    int[][] sobelSV = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]];
+                    int[][] sobelSH = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
+                    int sv = 0;
+                    int sh = 0;
+
+                    for (int i = 0; i < yx.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < yx.GetLength(1); j++)
+                        {
+                            yx[i, j] = _colorInformation.GrayScaleColor[y - 1 + i][x - 1 + j];
+                            sv += yx[i, j] * sobelSV[i][j];
+                            sh += yx[i, j] * sobelSH[i][j];
+                        }
+                    }
+
+                    if (edgeType == 't')
+                    {
+                        Treshold(barrier, threshold, bmpMASK, y, x, sv, sh);
+                    }
+                    else if (edgeType == 'g')
+                    {
+                        Gradient(sv, sh, bmpMASK, x, y);
+                    }
+                    else
+                    {
+                        Console.WriteLine("ohh");
+                        return;
+                    }
+                }
+            }
+
+            string savePath = _colorInformation.Path!.Split('.')[0] + "_MASK.png";
+            bmpMASK.Save(savePath, ImageFormat.Png);
+            Console.WriteLine("\nsucces save");
         }
+
+        private static Bitmap Gradient(int sv, int sh, Bitmap bmpMASK, int x, int y)
+        {
+            double gradient = Sqrt(Pow(sv, 2) + Pow(sh, 2));
+            int c = Math.Min(Floor(gradient), 255);
+            bmpMASK.SetPixel(x, y, Color.FromArgb(c, c, c));
+
+            return bmpMASK;
+        }
+
+        private Bitmap Treshold(char barrier, int threshold, Bitmap bmp, int y, int x, int sv, int sh)
+        {
+            double gradient = Sqrt(Pow(sv, 2) + Pow(sh, 2));
+
+            if (_colorInformation is null || _colorInformation.DefaultColor is null || _colorInformation.GrayScaleColor is null)
+                return bmp;
+
+            if (barrier == '+')
+            {
+                if (gradient > threshold)
+                {
+                    Color color = Color.FromArgb(255, 255, 255);
+                    bmp.SetPixel(x, y, color);
+                }
+                else
+                {
+                    Color color = Color.FromArgb(0, 0, 0);
+                    bmp.SetPixel(x, y, color);
+                }
+            }
+            else if (barrier == '-')
+            {
+                if (gradient > threshold)
+                {
+                    Color color = Color.FromArgb(0, 0, 0);
+                    bmp.SetPixel(x, y, color);
+                }
+                else
+                {
+                    Color color = Color.FromArgb(255, 255, 255);
+                    bmp.SetPixel(x, y, color);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Ahh");
+                return bmp;
+            }
+
+            return bmp;
+        }
+
+        private static double Sqrt(double x) => Math.Sqrt(x);
+        private static double Pow(double x, double y) => Math.Pow(x, y);
+        private static int Floor(double x) => (int)Math.Floor(x);
+
 
         public bool IsFalseCommandCheck()
         {
@@ -105,13 +213,13 @@ namespace TresStresHold.Command
                 return true;
             }
 
-            if (!value.All<char>(c => "-+1234567890".Contains(c)))
+            if (!value.All<char>(c => "-+1234567890tg".Contains(c)))
             {
                 Console.WriteLine("eror: there are characters not allowed in the value");
                 return true;
             }
 
-            if (!value[1..].All<char>(c => "1234567890".Contains(c)))
+            if (!value[1..^1].All<char>(c => "1234567890".Contains(c)))
             {
                 Console.WriteLine("eror: there are characters not allowed in the value");
                 return true;
@@ -123,8 +231,14 @@ namespace TresStresHold.Command
                 return true;
             }
 
+            if (!(value.EndsWith('g') || value.EndsWith('t')))
+            {
+                Console.WriteLine("error: incorrect value writing rules");
+                return true;
+            }
 
-            if (!int.TryParse(value[1..], out int intValue))
+
+            if (!int.TryParse(value[1..^1], out int intValue))
             {
                 Console.WriteLine($"error: something wrong when converting {value[1..]}");
                 return true;
@@ -138,7 +252,6 @@ namespace TresStresHold.Command
 
 
             _value = value;
-            Console.WriteLine(value);
             _path = path;
 
             return false;
