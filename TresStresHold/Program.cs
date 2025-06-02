@@ -38,8 +38,8 @@ namespace TresStresHold
         {
             Console.WriteLine("\nRMIC\t <command...> -c <[GrayScale1 2 N...]>\t\t <PATH::json_file_address...>\t-hapus warna grayscale tertentu pada gambar");
             Console.WriteLine("RPLACE\t <command...> -c <[GrayScale1:{R,G,B} 2 N...]>\t <PATH::json_file_address...>\t-ubah warna tertentu menjadi warna tertentu");
-            Console.WriteLine("MASK\t <command...> -c <<+/->threshold...>\t\t <PATH::json_file_address...>\t-menentukan edge dan gradasi pada gambar");
-            Console.WriteLine("TRSHOLD\t <command...> -c <<+/->threshold<t/g>...>\t <PATH::json_file_address...>\t-threasholding sebuah gambar\n");
+            Console.WriteLine("MASK\t <command...> -c <<+/->threshold<t/g>...>\t <PATH::json_file_address...>\t-menentukan edge dan gradasi pada gambar");
+            Console.WriteLine("TRSHOLD\t <command...> -c <<+/->threshold...>\t\t <PATH::json_file_address...>\t-threasholding sebuah gambar\n");
         }
 
         private static void Execute(string fullCommand)
