@@ -85,21 +85,19 @@ namespace TresStresHold.Command
             Console.WriteLine("\nsucces save");
         }
 
-        private static Bitmap Gradient(int sv, int sh, Bitmap bmpMASK, int x, int y)
+        private static void Gradient(int sv, int sh, Bitmap bmpMASK, int x, int y)
         {
             double gradient = Sqrt(Pow(sv, 2) + Pow(sh, 2));
             int c = Math.Min(Floor(gradient), 255);
             bmpMASK.SetPixel(x, y, Color.FromArgb(c, c, c));
-
-            return bmpMASK;
         }
 
-        private Bitmap Treshold(char barrier, int threshold, Bitmap bmp, int y, int x, int sv, int sh)
+        private void Treshold(char barrier, int threshold, Bitmap bmp, int y, int x, int sv, int sh)
         {
             double gradient = Sqrt(Pow(sv, 2) + Pow(sh, 2));
 
             if (_colorInformation is null || _colorInformation.DefaultColor is null || _colorInformation.GrayScaleColor is null)
-                return bmp;
+                return;
 
             if (barrier == '+')
             {
@@ -130,10 +128,8 @@ namespace TresStresHold.Command
             else
             {
                 Console.WriteLine("Ahh");
-                return bmp;
+                return;
             }
-
-            return bmp;
         }
 
         private static double Sqrt(double x) => Math.Sqrt(x);
